@@ -1,0 +1,180 @@
+<Window x:Class="ScreenQA.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ScreenQA — настройки"
+        Width="560" Height="720" MinWidth="460" MinHeight="420"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource CanvasBrush}" Foreground="{StaticResource TextBrush}"
+        FontFamily="{StaticResource UiFont}" FontSize="13">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="18,16,18,4">
+            <StackPanel>
+
+                <!-- Горячая клавиша -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Горячие клавиши" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,0,0,8"
+                                   Text="Выделение запускается любым из сочетаний ниже. Это может быть одна клавиша (Q) или сочетание (Shift + Q, Ctrl + Alt + 1)."/>
+                        <StackPanel x:Name="HotkeyList"/>
+                        <Button Content="+ Добавить сочетание" HorizontalAlignment="Left" Margin="0,2,0,0" Click="OnAddHotkey"/>
+                        <TextBlock x:Name="HotkeyHint" Style="{StaticResource Hint}"
+                                   Text="Чтобы изменить сочетание, щёлкните по полю и нажмите новые клавиши."/>
+                        <Border x:Name="HotkeyWarning" Background="#FFF4E6" CornerRadius="6" Padding="10,8" Margin="0,8,0,0">
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource WarnBrush}" FontSize="12"
+                                       Text="Одиночная клавиша (без Ctrl / Alt / Shift / Win) перехватывается во всех программах: пока ScreenQA запущен, её нельзя будет напечатать (в окнах самого ScreenQA — можно). Если мешает, оставьте только сочетания вроде Shift + Q или ставьте паузу из значка в трее."/>
+                        </Border>
+                        <TextBlock x:Name="HotkeyError" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                                   Margin="0,6,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- OCR -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Распознавание текста" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="ЯЗЫК РАСПОЗНАВАНИЯ"/>
+                        <ComboBox x:Name="OcrLanguageBox" DisplayMemberPath="DisplayName"/>
+                        <TextBlock Style="{StaticResource Hint}"
+                                   Text="Используется встроенный в Windows движок OCR — работает локально, без интернета. Доступны языки, установленные в Windows."/>
+                        <TextBlock x:Name="OcrInstallHint" Style="{StaticResource Hint}" Foreground="{StaticResource WarnBrush}" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ИИ -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="ИИ-провайдер" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ComboBox x:Name="ProviderBox" SelectionChanged="OnProviderChanged">
+                            <ComboBoxItem Tag="claudecode" Content="Claude Code — ваша подписка Claude, без ключа API"/>
+                            <ComboBoxItem Tag="anthropic" Content="Anthropic Claude — по ключу API"/>
+                            <ComboBoxItem Tag="openai" Content="OpenAI-совместимый (OpenAI, OpenRouter, Ollama, LM Studio…)"/>
+                        </ComboBox>
+
+                        <StackPanel x:Name="ClaudeCodePanel" Margin="0,10,0,0">
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="МОДЕЛЬ"/>
+                            <ComboBox x:Name="ClaudeCodeModelBox" IsEditable="True">
+                                <ComboBoxItem Content="claude-opus-5-5"/>
+                                <ComboBoxItem Content="claude-sonnet-5-5"/>
+                                <ComboBoxItem Content="claude-haiku-5-5"/>
+                            </ComboBox>
+                            <TextBlock Style="{StaticResource Hint}" Text="claude-opus-5-5 — самая точная. Sonnet и Haiku быстрее, но чаще ошибаются в сложных задачах."/>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="ТЩАТЕЛЬНОСТЬ" Margin="0,10,0,4"/>
+                            <ComboBox x:Name="ClaudeCodeEffortBox">
+                                <ComboBoxItem Tag="low" Content="low — быстро, для простых вопросов"/>
+                                <ComboBoxItem Tag="medium" Content="medium — баланс"/>
+                                <ComboBoxItem Tag="high" Content="high — думает и перепроверяет (рекомендуется)"/>
+                                <ComboBoxItem Tag="xhigh" Content="xhigh — ещё тщательнее, дольше"/>
+                                <ComboBoxItem Tag="max" Content="max — максимум рассуждений, самый долгий ответ"/>
+                            </ComboBox>
+                            <TextBlock Style="{StaticResource Hint}" Text="Чем выше, тем точнее на задачах с вычислениями и логикой, но дольше ответ и быстрее расходуется лимит подписки."/>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="ПУТЬ К CLAUDE.EXE" Margin="0,10,0,4"/>
+                            <TextBox x:Name="ClaudeCodePathBox" TextChanged="OnClaudePathChanged"/>
+                            <TextBlock x:Name="ClaudeCodeState" Style="{StaticResource Hint}"/>
+                            <TextBlock Style="{StaticResource Hint}"
+                                       Text="Запросы идут через установленный Claude Code и расходуют лимиты вашей подписки (Pro/Max). Ключ API не нужен, но в Claude Code нужно один раз войти: в терминале команда «claude auth login». Запросы не сохраняются в историю Claude Code, а инструменты отключены: Claude только отвечает и ничего не делает на компьютере."/>
+                        </StackPanel>
+
+                        <StackPanel x:Name="AnthropicPanel" Margin="0,10,0,0">
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="МОДЕЛЬ"/>
+                            <ComboBox x:Name="AnthropicModelBox" IsEditable="True">
+                                <ComboBoxItem Content="claude-opus-5-5"/>
+                                <ComboBoxItem Content="claude-sonnet-5-5"/>
+                                <ComboBoxItem Content="claude-haiku-5-5"/>
+                            </ComboBox>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="КЛЮЧ API" Margin="0,10,0,4"/>
+                            <DockPanel>
+                                <Button x:Name="AnthropicKeyClear" DockPanel.Dock="Right" Content="Удалить ключ" Margin="8,0,0,0" Click="OnClearAnthropicKey"/>
+                                <PasswordBox x:Name="AnthropicKeyBox"/>
+                            </DockPanel>
+                            <TextBlock x:Name="AnthropicKeyState" Style="{StaticResource Hint}"/>
+                        </StackPanel>
+
+                        <StackPanel x:Name="OpenAiPanel" Margin="0,10,0,0">
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="АДРЕС API (BASE URL)"/>
+                            <TextBox x:Name="OpenAiUrlBox"/>
+                            <TextBlock Style="{StaticResource Hint}"
+                                       Text="OpenAI: https://api.openai.com/v1 · OpenRouter: https://openrouter.ai/api/v1 · Ollama: http://localhost:11434/v1 · LM Studio: http://localhost:1234/v1"/>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="МОДЕЛЬ" Margin="0,10,0,4"/>
+                            <TextBox x:Name="OpenAiModelBox"/>
+                            <TextBlock Style="{StaticResource Hint}" Text="Название модели из документации вашего провайдера."/>
+                            <TextBlock Style="{StaticResource SectionLabel}" Text="КЛЮЧ API" Margin="0,10,0,4"/>
+                            <DockPanel>
+                                <Button x:Name="OpenAiKeyClear" DockPanel.Dock="Right" Content="Удалить ключ" Margin="8,0,0,0" Click="OnClearOpenAiKey"/>
+                                <PasswordBox x:Name="OpenAiKeyBox"/>
+                            </DockPanel>
+                            <TextBlock x:Name="OpenAiKeyState" Style="{StaticResource Hint}"/>
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="ЯЗЫК ОТВЕТА" Margin="0,12,0,4"/>
+                        <TextBox x:Name="AnswerLanguageBox"/>
+
+                        <CheckBox x:Name="SendImageBox" Margin="0,12,0,0">
+                            <TextBlock TextWrapping="Wrap" Text="Отправлять в ИИ и изображение выделенной области (лучше для формул, схем и графиков)"/>
+                        </CheckBox>
+                        <TextBlock Style="{StaticResource Hint}" Margin="22,2,0,0"
+                                   Text="Если выключить, провайдеру уходит только распознанный текст. Картинка передаётся напрямую и на диск не сохраняется. Модель должна поддерживать изображения."/>
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0"
+                                   Text="Ключи хранятся только на этом компьютере в зашифрованном виде (Windows DPAPI, доступ только у вашей учётной записи) и не пишутся в журнал."/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Приватность -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Приватность и запись экрана" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <CheckBox x:Name="HideFromCaptureBox" Checked="OnHideToggled" Unchecked="OnHideToggled">
+                            <TextBlock TextWrapping="Wrap" Text="Скрывать окно ответа и окно настроек от записи и демонстрации экрана"/>
+                        </CheckBox>
+                        <CheckBox x:Name="HideOverlayBox" Margin="0,6,0,0">
+                            <TextBlock TextWrapping="Wrap" Text="Также скрывать затемнение и рамку выделения (в записи будет видна страница и обычный курсор-стрелка)"/>
+                        </CheckBox>
+
+                        <Border x:Name="CaptureStatusPanel" CornerRadius="6" Padding="10,8" Margin="0,10,0,0" Background="#E9ECEF">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse x:Name="CaptureStatusDot" Width="9" Height="9" Margin="0,0,8,0" VerticalAlignment="Center" Fill="Gray"/>
+                                    <TextBlock x:Name="CaptureStatusTitle" FontWeight="SemiBold"/>
+                                </StackPanel>
+                                <TextBlock x:Name="CaptureStatusText" TextWrapping="Wrap" FontSize="12" Margin="17,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#FFF4E6" CornerRadius="6" Padding="10,8" Margin="0,8,0,0">
+                            <TextBlock TextWrapping="Wrap" Foreground="{StaticResource WarnBrush}" FontSize="12">
+                                <Run FontWeight="SemiBold" Text="Защита не гарантирована."/>
+                                <Run Text="Используется системная функция Windows (SetWindowDisplayAffinity, Windows 10 2004+). Программы, которые захватывают экран стандартными средствами Windows (например, OBS, Teams, Zoom, Discord, «Ножницы», Xbox Game Bar), обычно окна не видят. Но некоторые программы записи, драйверный захват, удалённый рабочий стол, внешние карты видеозахвата и съёмка экрана камерой могут его показать. Проверьте с вашей программой записи."/>
+                            </TextBlock>
+                        </Border>
+
+                        <TextBlock Style="{StaticResource Hint}" Margin="0,10,0,0"
+                                   Text="Снимок экрана делается только когда вы нажимаете горячую клавишу. Он хранится в памяти и удаляется после закрытия окна ответа. На диск выделение попадает только по кнопке «Сохранить снимок…»."/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Orientation="Horizontal" Margin="2,0,0,12">
+                    <TextBlock>
+                        <Hyperlink Click="OnOpenSettingsFolder">Папка настроек</Hyperlink>
+                    </TextBlock>
+                    <TextBlock Margin="16,0,0,0">
+                        <Hyperlink Click="OnOpenLogFolder">Журнал</Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource LineBrush}" BorderThickness="0,1,0,0" Padding="18,12">
+            <DockPanel LastChildFill="False">
+                <TextBlock x:Name="SaveError" DockPanel.Dock="Left" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"
+                           VerticalAlignment="Center" MaxWidth="300"/>
+                <Button DockPanel.Dock="Right" Content="Сохранить" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0" IsDefault="True" Click="OnSave"/>
+                <Button DockPanel.Dock="Right" Content="Отмена" IsCancel="True" Click="OnCancel"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

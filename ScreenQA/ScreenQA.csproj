@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- 10.0.19041 нужен для Windows.Media.Ocr и WDA_EXCLUDEFROMCAPTURE (Windows 10 2004+) -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>ScreenQA</AssemblyName>
+    <RootNamespace>ScreenQA</RootNamespace>
+    <Version>0.1.0</Version>
+    <Product>ScreenQA</Product>
+    <!-- DPI задаётся в app.manifest намеренно: это WPF-приложение, WinForms нужен только для значка в трее -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Официальный SDK Anthropic для C# -->
+    <PackageReference Include="Anthropic" Version="13.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ScreenQA.Tests" />
+  </ItemGroup>
+
+</Project>
